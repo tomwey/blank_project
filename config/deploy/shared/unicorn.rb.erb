@@ -1,23 +1,14 @@
-worker_processes 4
-
-root = "/home/deployer/apps/daydayup_production/current"
+root = "<%= current_path %>"
 working_directory root
-# shared_root = "/home/deployer/apps/shuiguoshe/shared"
-
-# listen "/tmp/unicorn.daydayup.sock", :backlog => 64
-# listen 4096, :tcp_nopush => false
-
-timeout 30
-
-pid "#{root}/tmp/pids/unicorn_daydayup.pid"
-
+pid "#{root}/tmp/pids/unicorn.pid"
 stderr_path "#{root}/log/unicorn.log"
 stdout_path "#{root}/log/unicorn.log"
 
-# listen "/tmp/unicorn.keke_official_website.sock"
-
-# To save some memory and improve performance
+listen "/tmp/unicorn.<%= fetch(:full_app_name) %>".sock
+worker_processes <%= fetch(:unicorn_worker_count) %>
+timeout 40
 preload_app true
+
 GC.respond_to?(:copy_on_write_friendly=) and
   GC.copy_on_write_friendly = true
 
@@ -49,5 +40,5 @@ after_fork do |server, worker|
   # the following is *required* for Rails + "preload_app true",  
   defined?(ActiveRecord::Base) and  
     ActiveRecord::Base.establish_connection  
-end 
+end
 
