@@ -25,6 +25,15 @@ module CentralServices
     # config.time_zone = 'Central Time (US & Canada)'
     config.time_zone = 'Beijing'
     
+    # 确保app配置文件存在
+    if Rails.env.development?
+      %w(config redis database secrets).each do |fname|
+        filename = "config/#{fname}.yml"
+        next if File.exist?(Rails.root.join(filename))
+        FileUtils.cp(Rails.root.join("#{filename}.example"), Rails.root.join(filename))
+      end
+    end
+    
     # The default locale is :en and all translations from config/locales/*.rb,yml are auto loaded.
     # config.i18n.load_path += Dir[Rails.root.join('my', 'locales', '*.{rb,yml}').to_s]
     # config.i18n.default_locale = :de
@@ -47,6 +56,9 @@ module CentralServices
     
     # remove warnings
     config.active_record.raise_in_transactional_callbacks = true
+    
+    # 防止大量IP访问
+    config.middleware.use Rack::Attack
     
   end
 end
